@@ -16,11 +16,4 @@ extern unsigned mem_size;
  */
 extern unsigned tlb_size;
 
-
-/*******************************************************************************
- * Make the tlb_size variable globally accessible.
- */
-extern int indexPointer;
-
-
 #endif/*_GLOBAL_H_*/

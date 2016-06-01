@@ -9,6 +9,7 @@ int i;
 int j;
 int found;
 int index;
+int tlbPointer;
 /*******************************************************************************
  * Looks up an address in the TLB. If no entry is found, calls pagetable_lookup()
  * to get the entry from the page table instead
@@ -71,26 +72,29 @@ pfn_t tlb_lookup(vpn_t vpn, int write) {
    /* 
     * Do a clock sweep to find the victim
    */
+   j = (tlbPointer + 1)%tlb_size;
    if (found == 0){
-     for (j = 0;j<tlb_size;j++){
+     while(j != tlbPointer){
        if(tlb[i].used != 1){
          tlb[j].valid = 1;
          tlb[j].vpn = vpn;
          tlb[j].pfn = pfn;
          index = j;
+         tlbPointer = j;
          break;
        }
        tlb[i].used = 0;
+       j = (tlbPointer + 1)%tlb_size;
      }
    }
    /* 
     * If all entries are used, the first entry is the victim
    */
    if(found == 0){
-     tlb[0].valid = 1;
-     tlb[0].vpn = vpn;
-     tlb[0].pfn = pfn;
-     index = 0;
+     tlb[tlbPointer].valid = 1;
+     tlb[tlbPointer].vpn = vpn;
+     tlb[tlbPointer].pfn = pfn;
+     index = tlbPointer;
    }
    /*
     * In all cases perform TLB house keeping. This means marking the found TLB entry as

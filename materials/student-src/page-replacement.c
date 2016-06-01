@@ -5,6 +5,7 @@
 #include "global.h"
 #include "process.h"
 
+int indexPointer;
 /*******************************************************************************
  * Finds a free physical frame. If none are available, uses a clock sweep
  * algorithm to find a used frame for eviction.
@@ -30,8 +31,7 @@ pfn_t get_free_frame(void) {
    for (i = 0; i < CPU_NUM_FRAMES; i++)
      if (rlt[i].pcb->pagetable[rlt[i].vpn].valid != 1)
        return i;
-
-   i = indexPointer + 1;
+   i = (indexPointer + 1)%CPU_NUM_FRAMES;
    while(i != indexPointer){
      if (rlt[i].pcb->pagetable[rlt[i].vpn].used != 1){
        rlt[i].pcb->pagetable[rlt[i].vpn].used = 1;
@@ -41,7 +41,6 @@ pfn_t get_free_frame(void) {
      rlt[i].pcb->pagetable[rlt[i].vpn].used = 0;
      i = (i + 1)%CPU_NUM_FRAMES;
    }
-   indexPointer = 0;
    /* If all else fails, return a random frame */
-   return rand() % CPU_NUM_FRAMES;
+   return indexPointer;
 }
